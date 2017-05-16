@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import {SparkScroll, SparkProxy } from '/imports/lib/spark.js';
-var Modal = require('boron/DropModal');
+require('velocity-animate');
+require('velocity-animate/velocity.ui');
+import VelocityTransitionGroup from 'velocity-react/velocity-transition-group';
+import VelocityComponent from 'velocity-react/velocity-component';
 
-const styles = {
+import { Hinder } from '../Components/Hinder.jsx';
+
+let styles = {
+  container: {
+    backgroundColor: '#212526',
+  },
   map: {
     position: 'fixed',
     top: 0,
@@ -12,23 +20,297 @@ const styles = {
     top: 0,
     zIndex: -1,
   },
-  modal: {
-    minHeight: 300,
-    width: '40%',
-    margin: 'auto',
-    backgroundColor: 'white',
-    zIndex: 100,
+  hinder: {
+
   },
+  hinderIcon: {
+    height: 96,
+    top: 627,
+    left: 1103,
+    position: 'fixed',
+    zIndex: 3
+  }
 }
+
+const hinders = [
+  [5123, 5070, false],
+  [5075, 5025, {
+    "imgPath": "images/hinderPics/Hay-Bale-Jump-JG_150606_Toughest_Aalborg_0137-413x620.jpg",
+    "name": "Hay Bale Jump",
+    "text": "Höbalar, ca 1,2m höga som står med olika mellanrum. Hoppa mellan dem, eller gå ner mellan varje. Du ska över samtliga balar.",
+    "rate": 94
+  }],
+  [5025, 4790, false],
+  [4790, 4755, {
+    "imgPath": "/images/hinderPics/Sandbags-Jacques-Holst-sjakholst@gmail.com-Photo-by-Jacques-Holst-bit.ly-jholstpics-CC-by-nc-sa-20150606-12-29-21-620x413.jpg",
+    "name": "Sandbags",
+    "text": "En säck vars vikt varierar mellan 15-25kg. Bär den från punkt A till punkt B.",
+    "rate": null
+  }],
+  [4755, 4640, false],
+  [4640, 4585, {
+    "imgPath": "/images/hinderPics/Incline-Wall-TOUGHEST_24H_28-29.06.2015-143-413x620.jpg",
+    "name": "Incline Wall",
+    "text": "En lätt lutande vägg du ska ta dig över. Höjden är ca 2m och lutar ca 45grader.",
+    "rate": 89
+  }],
+  [4585, 4440, false],
+  [4440, 4400, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "1K Run",
+    "text": "Löb 1 kilometer."
+  }],
+  [4400, 4316, false],
+  [4316, 4256, {
+    "imgPath": "/images/hinderPics/Toughest-07140-1-620x413.jpg",
+    "name": "Ring Slide",
+    "text": "Få ett bra grepp om ringarna och börjar sedan genom att glida så långt som möjligt på rören. Använd sedan din överkroppsstyrka  till att flytta ringarna framåt en och en.",
+    "rate": 92
+  }],
+  [4256, 4221, false],
+  [4221, 4186, {
+    "imgPath": "/images/hinderPics/Big-Wall-JG_20140927_Toughest_Cph_0162-copy-413x620.jpg",
+    "name": "Big Wall",
+    "text": "En 2m hög vägg du ska ta dig över. Givetvis får du inte använda ställningen till hjälp.",
+    "rate": 78
+  }],
+  [4186, 4156, false],
+  [4156, 4082, {
+    "imgPath": "/images/hinderPics/Hay-Pyramid-Jacques-Holst-sjakholst@gmail.com-Photo-by-Jacques-Holst-bit.ly-jholstpics-CC-by-nc-sa-20150502-13-06-49-620x413.jpg",
+    "name": "Hay Bale Pyramid",
+    "text": "Storleken på höbalarna varierar, men är ofta ca 1,2m höga. De är staplade som en pyramid en totalhöjd på 2-3 balar.",
+    "rate": 93
+  }],
+  [4082, 4060, false],
+  [4060, 4000, {
+    "imgPath": "/images/hinderPics/umea-143-620x349.jpg",
+    "name": "Balance",
+    "text": "Det klassiska balans hindret. Gå upp och ner stången och stampa på den vita markeringen på den andra sidan för att fortsätta.",
+    "rate": 90
+  }],
+  [4000, 3925, false],
+  [3925, 3885, {
+    "imgPath": "/images/hinderPics/Traverse-Walls-JG_150606_Toughest_Aalborg_0937-620x413.jpg",
+    "name": "Traverse Walls",
+    "text": "Klättra längs sidan av väggarna genom att använda de olika greppen.",
+    "rate": 54
+  }],
+  [3885, 3866, false],
+  [3866, 3826, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "2K Run",
+    "text": "Löb 2 kilometer."
+  }],
+  [3826, 3781, false],
+  [3781, 3741, {
+    "imgPath": "/images/hinderPics/PullAStone.jpg",
+    "name": "Pull A Stone",
+    "text": "Dra tyngden hela vägen upp till markeringen. Ställningar får användas som stöd för dina ben.",
+  }],
+  [3741, 3621, false],
+  [3621, 3566, {
+    "imgPath": "/images/hinderPics/Step-Up-JG_150516_Toughest_Ume--_0868-413x620.jpg",
+    "name": "Step Up",
+    "text": "Se det som en trappa med höga steg.",
+    "rate": 95
+  }],
+  [3566, 3482, false],
+  [3482, 3442, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "3K Run",
+    "text": "Löb 3 kilometer."
+  }],
+  [3442, 3431, false],
+  [3431, 3346, {
+    "imgPath": "/images/hinderPics/Swing-Walk-TOUGHEST_STKHLM_24052015-59-620x413.jpg",
+    "name": "Swing Walk",
+    "text": "Ta dig framåt med hjälp av de olika greppen som hänger ned. Hindret är ca 5m långt och kräver teknik och överkroppsstyrka.",
+    "rate": 41
+  }],
+  [3346, 3316, false],
+  [3316, 3296, {
+    "imgPath": "/images/hinderPics/Jeep-Dunks-TOUGHEST_24H_28-29.06.2015-123-403x620.jpg",
+    "name": "Jeep Dunks",
+    "text": "Bär dunkarna från punkt A till punkt B. En dunk väger 20kg. Emellanåt vill vi att du ska bära 2 dunkar samtidigt.",
+    "rate": 99
+  }],
+  [3296, 3271, false],
+  [3271, 3201, {
+    "imgPath": "/images/hinderPics/ig-zabakii-Photo-by-Jacques-Holst-jacquesholst.com-CC-by-nc-sa-20160903-12-03-47-620x413.jpg",
+    "name": "Traverse Rings",
+    "text": "Flytta ringarna en och en i en lugn och kontrollerad rörelse från pinne till pinne tills du har kommit över hela röret. Se till att ha bra grepp då du kommer hänga med hela kroppsvikten på en arm när du flyttar ringarna.",
+    "rate": 72
+  }],
+  [3201, 3131, {
+    "imgPath": "/images/hinderPics/Hay-Bale-Jump-JG_150606_Toughest_Aalborg_0137-413x620.jpg",
+    "name": "Hay Bale Jump",
+    "text": "Höbalar, ca 1,2m höga som står med olika mellanrum. Hoppa mellan dem, eller gå ner mellan varje. Du ska över samtliga balar.",
+    "rate": 94
+  }],
+  [3131, 3106, false],
+  [3106, 3076, {
+    "imgPath": "/images/hinderPics/Mudland-Toughest_GBG_MikaelStiller_20141018-160-620x414.jpg",
+    "name": "Mudland XL",
+    "text": "Antingen hoppar du mellan groparna eller går du ner i groparna och över till nästa. Groparna är ca 1m djupa och högarna i mellan är ca 1m höga."
+  }],
+  [3076, 3046, false],
+  [3046, 3001, {
+    "imgPath": "/images/hinderPics/Bulgarian-Bag-TOUGHEST_UMEA_160515-68-620x349.jpg",
+    "name": "Bulgarian Bags",
+    "text": "Bär bagen från punkt A till punkt B. Bagen väger ca 20kg.",
+    "rate": 96
+  }],
+  [3001, 2926, {
+    "imgPath": "/images/hinderPics/Sternum-Checker-JG_150516_Toughest_Ume-_0872-620x620.jpg",
+    "name": "Sternum Checker",
+    "text": "Det är 2 stockar du ska över. Den ena sätter du foten på, den andra ska du över.",
+    "rate": 63
+  }],
+  [2926, 2862, false],
+  [2862, 2826, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "4K Run",
+    "text": "Löb 4 kilometer."
+  }],
+  [2826, 2796, false],
+  [2796, 2721, {
+    "imgPath": "/images/hinderPics/Dips-Walk-TOUGHEST_24H_28-29.06.2015-62-620x349.jpg",
+    "name": "Dips Walk",
+    "text": "Du ska gå från ena sidan till andra genom att använda överkroppen. Du går med händerna på stängerna. Längden är ca 5m.",
+    "rate": 64
+  }],
+  [2721, 2631, false],
+  [2631, 2581, {
+    "imgPath": "/images/hinderPics/Irish-Table-_MG_0213-620x415.jpg",
+    "name": "Irish Table",
+    "text": "Ett klassiskt hinder där du ska ta dig över plankan. Plankans höjd varierar, men är ofta runt 1,6-1,7m högt. Du får givetvis inte använda ställningen till hjälp.",
+    "rate": 63
+  }],
+  [2581, 2496, false],
+  [2496, 2476, {
+    "imgPath": "/images/hinderPics/Carry-a-log-TOUGHEST_24H_28-29.06.2015-78-620x413.jpg",
+    "name": "Carry A Log",
+    "text": "Bär stocken från punkt A till punkt B. Stocken väger ca 25kg.",
+    "rate": 95
+  }],
+  [2476, 2436, false],
+  [2436, 2396, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "5K Run",
+    "text": "Löb 5 kilometer."
+  }],
+  [2396, 2336, false],
+  [2336, 2276, {
+    "imgPath": "/images/hinderPics/Incline-Wall-TOUGHEST_24H_28-29.06.2015-143-413x620.jpg",
+    "name": "Incline Wall",
+    "text": "En lätt lutande vägg du ska ta dig över. Höjden är ca 2m och lutar ca 45grader.",
+    "rate": 89
+  }],
+  [2276, 2201, false],
+  [2201, 2116, {
+    "imgPath": "/images/hinderPics/Rings-Jacques-Holst-sjakholst@gmail.com-Photo-by-Jacques-Holst-bit.ly-jholstpics-cc-by-nc-sa-20140927-11-47-19-459x620.jpg",
+    "name": "Rings",
+    "text": "Svinga dig i ringarna för att ta dig över. Hindret varierar i total längd, men ringarna hänger alltid med 80cm mellanrum och hänger ner ca 80 cm från ställningen. Höjden över marken varierar.",
+    "rate": 80
+  }],
+  [2116, 2081, false],
+  [2081, 2061, {
+    "imgPath": "/images/hinderPics/Mudland-Toughest_GBG_MikaelStiller_20141018-160-620x414.jpg",
+    "name": "Mudland",
+    "text": "Antingen hoppar du mellan groparna eller går du ner i groparna och över till nästa. Groparna är ca 1m djupa och högarna i mellan är ca 1m höga.",
+    "rate": 91
+  }],
+  [2061, 2012, false],
+  [2012, 1941, {
+    "imgPath": "/images/hinderPics/Monkey-Bar-ToughestMalmo2014-VincentCruz-26-620x413.jpg",
+    "name": "Monkey Bar",
+    "text": "Ett klassiskt hinder som kräver överkroppsstyrka och teknik. Ta dig från ena sidan till andra utan att nudda marken. Hindret är ca 8m långt. Ibland är 4m uppför och 4m nedför.",
+    "rate": 77
+  }],
+  [1941, 1936, false],
+  [1936, 1893, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "6K Run",
+    "text": "Löb 6 kilometer."
+  }],
+  [1893, 1806, {
+    "imgPath": "/images/hinderPics/Dragons-Back-JG_20140927_Toughest_Cph_0180-copy-620x413.jpg",
+    "name": "Dragon’s Back",
+    "text": "5 platåer ca 2,5m höga. Du kan hoppa mellan dem. Längden mellan platåerna är ca 2,5 meter. Vill du inte hoppa mellan dem, klättrar du ner och upp på nästa.",
+    "rate": 71
+  }],
+  [1806, 1691, false],
+  [1691, 1621, {
+    "imgPath": "/images/hinderPics/Rope-Climb-Tough-printupploest-127-620x413.jpg",
+    "name": "Rope Climb",
+    "text": "Klättra rakt uppåt och slå i klockan.",
+    "rate": 47
+  }],
+  [1621, 1601, false],
+  [1601, 1516, {
+    "imgPath": "/images/hinderPics/ig-zabakii-Photo-by-Jacques-Holst-jacquesholst.com-CC-by-nc-sa-20160903-09-27-17-620x413.jpg",
+    "name": "Ninja Jump",
+    "text": "Det finns 2 sätt att göra detta. Antingen tar du det lugnt och stannar och greppar varje platsform efter varje hopp med händerna.\n\nI det andra alternativet använder du inte händerna, och istället hoppar från platform till platform utan att stanna.\n\nI denna teknik är snabbhet och timing det väsentliga.",
+    "rate": 65
+  }],
+  [1516, 1396, false],
+  [1396, 1336, {
+    "imgPath": "/images/hinderPics/ig-zabakii-Photo-by-Jacques-Holst-jacquesholst.com-CC-by-nc-sa-20160903-14-14-26-620x413.jpg",
+    "name": "Trampoline Jump",
+    "text": "Trampolinen står 4 meter upp från vattenytan. Det är inte mer att göra än att bita ihop och hoppa!",
+    "rate": 95
+  }],
+  [1336, 1032, false],
+  [1032, 925, {
+    "imgPath": "/images/hinderPics/Platinum-Rig-TOUGHEST_24H_28-29.06.2015-43-620x413.jpg",
+    "name": "Platinum Rig",
+    "text": "Ett hinder för grepp och teknik. Hindret varieras alltid genom olika kombinationer av grepp som hänger ned. Allt från ringar och monkeybar, till bollar, rep och rörliga stänger. Hindret är ca 10 meter långt.",
+    "rate": 46
+  }],
+  [925, 882, {
+    "imgPath": "/images/hinderPics/TOUGHEST_24H_28-29.06.2015-5.jpg",
+    "name": "7K Run",
+    "text": "Löb 7 kilometer."
+  }],
+  [882, 822, {
+    "imgPath": "/images/hinderPics/umea-98-620x413.jpg",
+    "name": "Spinning Wheels",
+    "text": "Se till att du har ett bra grepp om hjulet när den når botten, och använda momentumet i gunget för att nå nästa hjul.",
+    "rate": 50
+  }],
+  [822, 792, "Water Cross"],
+  [792, 617, false],
+  [617, 567, {
+    "imgPath": "/images/hinderPics/Super-Slide-JG_150523_Toughest_Stockholm_1242-620x413.jpg",
+    "name": "Super Slide",
+    "text": "Sätt dig ner och håll in armar och ben.",
+    "rate": 86
+  }],
+  [567, 207, false],
+  [207,142, {
+    "imgPath": "/images/hinderPics/Ramp-Jacques-Holst-sjakholst@gmail.com-Photo-by-Jacques-Holst-bit.ly-jholstpics-CC-by-nc-sa-20150502-11-11-16-620x383.jpg",
+    "name": "Ramp",
+    "text": "Rampen är ca 4,5m hög och bemästras genom att ta sig upp på den. Väl uppe finns det två sätt att ta sig ner. Antingen genom brandstång eller stege.",
+    "rate": 70
+  }],
+  [142, 0, {
+    "imgPath": "/images/hinderPics/Elite_Pics_profil-1024x683.jpg",
+    "name": "Goal",
+    "text": "Gratis - du är toughest!"
+  }]
+]
+
+
 export class Map extends Component {
   constructor(props){
     super(props);
     this.state = {
       strokeDashoffset: 5123,
       scroll:0,
+      hinder: false
     }
     this.updateMapPath = this.updateMapPath.bind(this);
-    this.showModal = this.showModal.bind(this);
+    this.showHinder = this.showHinder.bind(this);
     this.hideModal = this.hideModal.bind(this);
   }
 
@@ -40,45 +322,57 @@ export class Map extends Component {
     node.style.strokeDasharray = length + ' ' + length;
     console.log(node.style.strokeDasharray);
     console.log(node.getPointAtLength(length*0.5));
-
-
   }
   updateMapPath(ratio){
+
     this.setState({
       strokeDashoffset: this.offsetTarget*(1-ratio)
     })
-    if (this.state.offsetTarget < 5080) {
-      console.log("1st hinder!");
-
+    //this.showHinder()
+    for (var i = 0; i < hinders.length; i++) {
+      if (this.offsetTarget*(1-ratio) < hinders[i][0] && this.offsetTarget*(1-ratio) >= hinders[i][1]) {
+        this.setState({
+          hinder: hinders[i][2],
+        })
+        console.log(this.state.hinder);
+      }
     }
-    //console.log(this.state.strokeDashoffset);
-    console.log(ratio);
+
+
+    console.log(this.state.strokeDashoffset);
+
 
   }
-  showModal(){
-    this.refs.modal.show();
+  showHinder(){
+
+
   }
   hideModal(){
     this.refs.modal.hide();
   }
   render(){
     return (
-      <div>
-        <map name="Map" id="Map">
-          <area alt="" title="" href="" shape="poly" coords="1123,664,1160,662,1160,688,1124,684" onmousehover={console.log("clicked 1st")}/>
-          <area alt="" title="" href="http://google.com" shape="poly" coords="1050,667,1052,696,1084,696,1086,671" />
-          <area alt="" title="" href="#" shape="poly" coords="1270,702,1271,734,1291,734,1290,702" />
-          <area alt="" title="" href="#" shape="poly" coords="1176,762,1140,783,1120,774,1123,731,1158,711" />
-          <area alt="" title="" href="#" shape="poly" coords="1074,635,1075,662,1099,664,1098,635" />
-          <area alt="" title="" href="#" shape="poly" coords="1096,607,1120,628,1175,596,1142,575" />
-          <area alt="" title="" href="#" shape="poly" coords="1028,626,1066,603,1064,544,1022,567" />
-          <area alt="" title="" href="#" shape="poly" coords="970,599,1012,574,971,543,924,576" />
-        </map>
+      <div style={styles.container}>
+        <div style={styles.hinder}>
+
+        </div>
+
+        <VelocityTransitionGroup enter={{animation: "fadeIn"}} runOnMount={true} leave={{animation: "fadeOut"}}>
+          {this.state.hinder ?
+            <div>
+              <Hinder hinder={this.state.hinder} style={styles.hinder}/>
+              {/*<img src={"/images/hinders/"+this.state.hinder.name+".png"} style={styles.hinderIcon}/>*/}
+            </div>
+            :
+            ""
+          }
+        </VelocityTransitionGroup>
+
         <SparkProxy.div proxyId="hero" className="hero">
           <SparkScroll.span
             proxy="hero"
             callback={this.updateMapPath }
-            timeline={{topTop:0, 'topTop+4000':0}}
+            timeline={{'topTop-100':0, 'topTop+4000':0}}
             style={styles.map}
           >
 
@@ -158,7 +452,7 @@ export class Map extends Component {
                   c2.02,1.774,8.223,3.517,11.503,4.202c1.541,0.322,10.152-0.797,13.666-2.5"
                   id="Path-13"
                   stroke="#70CE44"
-                  strokeWidth="5">
+                  strokeWidth="6">
                 </path>
               </g>
             </svg>
@@ -168,7 +462,8 @@ export class Map extends Component {
 
 
         </SparkProxy.div>
-        <img src="images/map.jpg" style={styles.img} usemap="#Map"/>
+        <img src="images/map.jpg" style={styles.img} />
+
 
 
       </div>
