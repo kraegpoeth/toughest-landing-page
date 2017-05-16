@@ -34,6 +34,7 @@ export class Rss extends Component {
     }
   }
   componentDidMount(){
+
     $.get(FEED_URL, function (data) {
     $(data).find("item").each(function () { // or "item" or whatever suits your feed
         var el = $(this);
@@ -50,7 +51,7 @@ export class Rss extends Component {
     return (
       <div className="container" style={styles.container}>
         <h1 style={styles.header}>Live News From Riddersborg!</h1>
-
+        
 
       </div>
     );

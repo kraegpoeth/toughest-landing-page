@@ -296,7 +296,7 @@ const hinders = [
   [142, 0, {
     "imgPath": "/images/hinderPics/Elite_Pics_profil-1024x683.jpg",
     "name": "Goal",
-    "text": "Gratis - du är toughest!"
+    "text": "Gratis - du är Toughest!"
   }]
 ]
 
@@ -310,8 +310,6 @@ export class Map extends Component {
       hinder: false
     }
     this.updateMapPath = this.updateMapPath.bind(this);
-    this.showHinder = this.showHinder.bind(this);
-    this.hideModal = this.hideModal.bind(this);
   }
 
   componentDidMount() {
@@ -320,36 +318,21 @@ export class Map extends Component {
     var length = ~~ node.getTotalLength();
     this.offsetTarget = length;
     node.style.strokeDasharray = length + ' ' + length;
-    console.log(node.style.strokeDasharray);
-    console.log(node.getPointAtLength(length*0.5));
   }
   updateMapPath(ratio){
-
     this.setState({
       strokeDashoffset: this.offsetTarget*(1-ratio)
     })
-    //this.showHinder()
+    //get correct hinder from path position
     for (var i = 0; i < hinders.length; i++) {
       if (this.offsetTarget*(1-ratio) < hinders[i][0] && this.offsetTarget*(1-ratio) >= hinders[i][1]) {
         this.setState({
           hinder: hinders[i][2],
         })
-        console.log(this.state.hinder);
       }
     }
-
-
-    console.log(this.state.strokeDashoffset);
-
-
   }
-  showHinder(){
 
-
-  }
-  hideModal(){
-    this.refs.modal.hide();
-  }
   render(){
     return (
       <div style={styles.container}>
@@ -361,7 +344,6 @@ export class Map extends Component {
           {this.state.hinder ?
             <div>
               <Hinder hinder={this.state.hinder} style={styles.hinder}/>
-              {/*<img src={"/images/hinders/"+this.state.hinder.name+".png"} style={styles.hinderIcon}/>*/}
             </div>
             :
             ""

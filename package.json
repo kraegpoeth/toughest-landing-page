@@ -6,8 +6,6 @@
   },
   "dependencies": {
     "babel-runtime": "^6.20.0",
-    "boron": "^0.2.3",
-    "classnames": "^2.2.5",
     "meteor-node-stubs": "~0.2.4",
     "react": "^15.5.4",
     "react-dimensions": "^1.3.0",
@@ -15,7 +13,6 @@
     "react-progressbar.js": "^0.2.0",
     "react-scroll-components": "^0.2.2",
     "react-spark-scroll": "^3.0.2",
-    "react-svg-chart": "^4.0.0",
     "velocity-react": "^1.3.2"
   }
 }
